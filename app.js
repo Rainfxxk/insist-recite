@@ -19,7 +19,7 @@ let revise_curve = {
     30 : 60
 }
 
-function update_revise_time(callback) {
+function update_revise_time() {
     yesterday = moment().subtract(1, 'days')
     yesterday_str = yesterday.format("YYYY-MM-DD")
     db.all("SELECT * FROM revise where time =?", [yesterday_str], (err, result) => {

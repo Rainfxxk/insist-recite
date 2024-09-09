@@ -1,6 +1,9 @@
 let words = null
 
 let update = document.getElementsByClassName('update')[0]
+let command_line = document.getElementsByClassName('command_line')[0]
+command_line.is_show = false
+command_line.input = document.getElementsByClassName('command_line_input')[0]
 let box = document.getElementsByClassName("box")[0]
 let word = document.getElementsByClassName("word")[0]
 let pronounce = document.getElementsByClassName("pron")[0]
@@ -91,12 +94,12 @@ getwords()
 
 update.onclick = () => {
   fetch("/update_revise", {
-      method: 'POST',
-      body: JSON.stringify({ 'word_id': words[index]['id'] }),
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    }).
+    method: 'POST',
+    body: JSON.stringify({ 'word_id': words[index]['id'] }),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }).
     then((response) => {
       fetch("/getword").
         then((response) => response.json()).
@@ -106,7 +109,7 @@ update.onclick = () => {
           index = 0
         }).
         then(show_word)
-        })
+    })
 }
 
 suspand.style.right = -(suspand.offsetWidth + 5) + 'px'
@@ -209,39 +212,60 @@ document.addEventListener('touchend', handleTouchEnd, false);
 document.addEventListener(
   "keypress",
   (event) => {
-    const keyName = event.key;
+    const keyname = event.key;
 
-    if (keyName === "l") {
-      closeInterval()
-      show_word()
+    if (keyname === ":") {
+      command_line.style.top = '0'
+      command_line.is_show = true
+      command_line.input.focus()
     }
 
-    if (keyName === "h") {
-      closeInterval()
-      index = index - 2
-      if (index < 0) {
-        index = words.length - 1
-      }
-      show_word()
+    if (keyname === "Enter" && document.activeElement == command_line.input) {
+      word = command_line.input.value.slice(1, command_line.input.value.length)
     }
 
-    if (keyName === "m") {
-      if (mark.style.display === "none") {
-        mark.style.display = "block"
-      }
-      else {
-        mark.style.display = "none"
+    if (keyname === "[" && event.ctrlKey) {
+      if (document.activeElement === command_line.input) {
+        command_line.style.top = '-7vh'
+        command_line.is_show = false
+        command_line.input.value = ''
       }
     }
 
-    if (keyName === " ") {
-      if (is_interval_closed) {
-        startInterval()
-      }
-      else {
+    if (document.activeElement !== command_line.input) {
+      if (keyname === "l") {
         closeInterval()
+        show_word()
+      }
+
+      if (keyname === "h") {
+        closeInterval()
+        index = index - 2
+        if (index < 0) {
+          index = words.length - 1
+        }
+        show_word()
+      }
+
+      if (keyname === "m") {
+        if (mark.style.display === "none") {
+          mark.style.display = "block"
+        }
+        else {
+          mark.style.display = "none"
+        }
+      }
+
+      if (keyname === " ") {
+        if (is_interval_closed) {
+          startInterval()
+        }
+        else {
+          closeInterval()
+        }
       }
     }
   },
-  false,
-);
+  false
+)
+
